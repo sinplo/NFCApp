@@ -96,12 +96,12 @@ public class ReadNFCTagUtil {
 
         int tempIndex = 0;
         if (bytelist == null) {
-            view.setText("Tag is empty or something wrong happened");
+            view.setText("Tag is empty or something wrong happened!");
         } else {
             view.setText("");
             for (int index = 0; index < bytelist.size(); index++) {
                 byte currentByte = bytelist.get(index);
-                String formatedString = String.format("x%02X", currentByte);
+                String formatedString = String.format("%02X", currentByte);
 
                 view.append(formatedString);
                 tempIndex++;
@@ -114,4 +114,28 @@ public class ReadNFCTagUtil {
         }
 
     }
+
+    public static ArrayList<String> reformatByteStringArray(ArrayList<Byte> bytelist){
+        int tempIndex = 0;
+        ArrayList<String> formatedList = new ArrayList<>();
+        if(bytelist != null){
+            String page = "";
+            for(int index = 0; index < bytelist.size(); index ++){
+                byte currentByte = bytelist.get(index);
+                String formatedString = String.format("%02X", currentByte);
+                page = page + formatedString;
+                tempIndex++;
+                if(tempIndex == 4){
+                    tempIndex = 0;
+                    formatedList.add(page);
+                    page = "";
+                }
+            }
+        }
+        return formatedList;
+
+
+    }
+
+
 }

@@ -15,11 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import sinplo.nfcapp.util.CustomListAdapter;
 import sinplo.nfcapp.util.ReadNFCTagUtil;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,18 +31,22 @@ public class MainActivity extends AppCompatActivity {
     private String[][] mtechList;
     PendingIntent pendingIntent;
     static final String DATA = "Data";
-    private static String tagData = "";
+//    private static String tagData = "";
+
+    private ListView mtagInfoListView;
+    private CustomListAdapter mCustomListAdapter;
+    private ArrayList<String> readTag;
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         String textm = savedInstanceState.getString(DATA);
-        this.text.setText(textm);
+//        this.text.setText(textm);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(DATA, tagData);
+//        outState.putString(DATA, tagData);
 
         super.onSaveInstanceState(outState);
 
@@ -51,11 +57,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        text = findViewById(R.id.textViee);
-        if (savedInstanceState != null) {
-            //  Log.e("dkjfkdfjdkf", savedInstanceState.getString(DATA));
-            text.setText(savedInstanceState.getString(DATA));
-        }
+//        text = findViewById(R.id.textViee);
+//        if (savedInstanceState != null) {
+//            //  Log.e("dkjfkdfjdkf", savedInstanceState.getString(DATA));
+//            text.setText(savedInstanceState.getString(DATA));
+//        }
+
+        readTag = new ArrayList<>();
+        readTag.add("MMMM");
+        readTag.add("uuuuu");
+        mtagInfoListView = findViewById(R.id.listview_tag);
+        mCustomListAdapter = new CustomListAdapter(this, readTag);
+        mtagInfoListView.setAdapter(mCustomListAdapter);
+
+        Log.e("customAdapter: ", mCustomListAdapter.getItem(0));
 
         //forcing mainActivity to be on top
         //  getIntent().setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -106,18 +121,36 @@ public class MainActivity extends AppCompatActivity {
 
         String[] techList = tag.getTechList();
 
+
         Boolean containsMifareUltralightTech = Arrays.toString(techList).contains(MifareUltralight.class.getName());
         Boolean containsNfcA = Arrays.toString(techList).contains(NfcA.class.getName());
         if (containsMifareUltralightTech) {
             MifareUltralight mifare = MifareUltralight.get(tag);
             if (mifare != null) {
                 ArrayList<Byte> result = ReadNFCTagUtil.readMifareUltralightTag(tag);
-                ReadNFCTagUtil.setTextView(result, text);
+                readTag.clear();
+                readTag.addAll(ReadNFCTagUtil.reformatByteStringArray(result));
+//                ReadNFCTagUtil.setTextView(result, text);
             }
         } else if (containsNfcA) {
             ArrayList<Byte> result = ReadNFCTagUtil.readNfcATag(tag);
-            ReadNFCTagUtil.setTextView(result, text);
+//            ReadNFCTagUtil.setTextView(result, text);
+            readTag.clear();
+            readTag.addAll(ReadNFCTagUtil.reformatByteStringArray(result));
         }
+
+
+
+        for(String s: readTag){
+//            mCustomListAdapter.add(s);
+            Log.e("MMMMM", s);
+        }
+//       mCustomListAdapter= new CustomListAdapter(this, readTag);
+//        mCustomListAdapter.addAll(readTag);
+
+
+        mCustomListAdapter.notifyDataSetChanged();
+      //  Log.e("customAdapter: ", mCustomListAdapter.getItem(0));
 
     }
 
